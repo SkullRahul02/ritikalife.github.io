@@ -1,325 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ritika's Life</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Background with dark night sky */
-        body {
-            background: radial-gradient(circle at bottom, #001f3f, #000);
-            color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Stars animation */
-        .stars {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        .star {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-            opacity: 0;
-        }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-
-        /* Navbar styling */
-        .navbar {
-            position: fixed;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-        }
-
-        /* Section styling */
-        .section {
-            min-height: 100vh;
-            padding: 80px 20px;
-            text-align: center;
-        }
-
-        /* Hero section */
-        .hero-text {
-            padding: 150px 20px 50px;
-        }
-
-        /* Gallery styling */
-        .gallery img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-        .quote {
-            font-style: italic;
-            color: #ccc;
-        }
-
-        /* Game styling */
-        #flappyCanvas {
-            display: block;
-            margin: 20px auto;
-            background: #000;
-            border: 2px solid white;
-        }
-        .score-container {
-            font-size: 24px;
-            margin: 15px 0;
-        }
-        .controls-note {
-            color: #aaa;
-            margin-bottom: 20px;
-        }
-        .restart-btn {
-            display: none;
-            margin: 20px auto;
-            padding: 10px 30px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Future Scanner</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background: linear-gradient(180deg, #000 0%, #071018 100%);
+      font-family: Arial, Helvetica, sans-serif;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    #space-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    
+    .container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+    }
+    
+    .card {
+      width: 90%;
+      max-width: 450px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 30px;
+      color: #fff;
+    }
+    
+    #message {
+      font-size: 18px;
+      margin-bottom: 25px;
+      color: #e0e0e0;
+    }
+    
+    #startBtn {
+      padding: 15px 40px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #16a34a, #06b6d4);
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+    }
+    
+    #startBtn:hover {
+      box-shadow: 0 6px 20px rgba(22, 163, 74, 0.6);
+      transform: translateY(-2px);
+    }
+    
+    #startBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    #startBtn:active {
+      transform: translateY(0);
+    }
+    
+    #status {
+      font-size: 16px;
+      min-height: 24px;
+      margin: 15px 0;
+      color: #b0b0b0;
+    }
+    
+    .bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .bar > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #16a34a, #06b6d4);
+      transition: width 100ms linear;
+    }
+    
+    .hand-container {
+      margin: 20px auto;
+      width: 150px;
+      height: 200px;
+      display: none;
+    }
+    
+    .hand-svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 15px rgba(22, 163, 74, 0.5));
+    }
+    
+    .scan-line {
+      stroke: #06b6d4;
+      stroke-width: 5;
+      stroke-linecap: round;
+      opacity: 0.9;
+      animation: scanLine 2.5s linear infinite;
+    }
+    
+    @keyframes scanLine {
+      0% { transform: translateY(-30px); }
+      100% { transform: translateY(200px); }
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal {
+      background: rgba(20, 20, 30, 0.95);
+      border-radius: 15px;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      max-width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 32px;
+      color: #06b6d4;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .close-btn:hover {
+      color: #16a34a;
+      transform: scale(1.2);
+    }
+    
+    .modal h3 {
+      color: #16a34a;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+    
+    .modal video {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: 10px;
+      background: #000;
+      margin: 20px 0;
+    }
+    
+    .modal iframe {
+      width: 100%;
+      max-width: 500px;
+      height: 300px;
+      border-radius: 10px;
+      border: 2px solid #06b6d4;
+      margin: 20px 0;
+    }
+  </style>
 </head>
 <body>
-    <!-- Stars background -->
-    <div class="stars"></div>
+  <canvas id="space-bg"></canvas>
+  
+  <div class="container">
+    <div class="card">
+      <h1>Future Scanner</h1>
+      <div id="message">To see your future click on START button</div>
+      <button id="startBtn">START</button>
+      <div id="status"></div>
+      
+      <div class="hand-container" id="handContainer">
+        <svg class="hand-svg" viewBox="0 0 150 210" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- Palm -->
+          <ellipse cx="75" cy="130" rx="40" ry="55" fill="#0a3a1a" stroke="#00ff88" stroke-width="2"/>
+          
+          <!-- Fingers -->
+          <rect x="35" y="10" width="11" height="75" rx="5" fill="#0a3a1a" stroke="#00ff88" stroke-width="1.5"/>
+          <rect x="52" y="5" width="12" height="85" rx="6" fill="#0a3a1a" stroke="#00ff88" stroke-width="1.5"/>
+          <rect x="70" y="2" width="12" height="90" rx="6" fill="#0a3a1a" stroke="#00ff88" stroke-width="1.5"/>
+          <rect x="88" y="5" width="12" height="85" rx="6" fill="#0a3a1a" stroke="#00ff88" stroke-width="1.5"/>
+          <rect x="105" y="10" width="11" height="75" rx="5" fill="#0a3a1a" stroke="#00ff88" stroke-width="1.5"/>
+          
+          <!-- Palm details -->
+          <path d="M50 100 Q75 115 85 140" stroke="#00dd77" stroke-width="1.5" opacity="0.8" filter="url(#glow)"/>
+          <path d="M60 85 Q70 95 75 105" stroke="#00ffaa" stroke-width="1" opacity="0.7"/>
+          <path d="M90 85 Q80 95 75 105" stroke="#00ffaa" stroke-width="1" opacity="0.7"/>
+          
+          <!-- Scanning line -->
+          <line id="scanLine" class="scan-line" x1="30" y1="20" x2="120" y2="20"/>
+        </svg>
+      </div>
+      
+      <div class="bar"><div id="barFill"></div></div>
+    </div>
+  </div>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Ritika's Life</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-                    <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/_.ri7uj._/" target="_blank">Instagram</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Home Section -->
-    <section id="home" class="section">
-        <div class="hero-text">
-            <h1>Ritika's Life</h1>
-            <p>Discover the world through my lens</p>
-            <a href="#gallery" class="btn btn-light mt-3">Explore Gallery →</a>
-        </div>
-        <div class="container mt-5">
-            <div id="carouselExample" class="carousel slide">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="https://github.com/SkullRahul02/ritikalife.github.io/blob/main/5e60102c-332d-4fba-b145-678f9ac831b4.jpg?raw=true" class="d-block w-100" alt="Gallery image 1">
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://via.placeholder.com/800x400" class="d-block w-100" alt="Gallery image 2">
-                    </div>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section id="gallery" class="section">
-        <div class="container">
-            <h2 class="mb-5">Gallery</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <img src="https://github.com/SkullRahul02/ritikalife.github.io/blob/main/97af96f1-f3f3-4a2b-8946-c87def0f0d27.jpg?raw=true" alt="Gallery item 1" class="img-fluid">
-                    <p class="quote mt-2">"Beauty in simplicity"</p>
-                </div>
-                <div class="col-md-4">
-                    <img src="https://github.com/SkullRahul02/ritikalife.github.io/blob/main/23ed04c0-238e-4345-902c-d6af7fc8be34.jpg?raw=true" alt="Gallery item 2" class="img-fluid">
-                    <p class="quote mt-2">"Moments frozen in time"</p>
-                </div>
-                <div class="col-md-4">
-                    <img src="https://via.placeholder.com/400x300" alt="Gallery item 3" class="img-fluid">
-                    <p class="quote mt-2">"Art through perspective"</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Blog Section with Game -->
-    <section id="blog" class="section">
-        <div class="container">
-            <h2>Blog</h2>
-            <div class="score-container">Score: <span id="score">0</span></div>
-            <p class="controls-note">Press ENTER or click to jump!</p>
-            <canvas id="flappyCanvas" width="400" height="500"></canvas>
-            <button class="restart-btn" onclick="resetGame()">Restart Game</button>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="section">
-        <div class="container">
-            <h2>Contact</h2>
-            <p>Connect with me for collaborations and inquiries</p>
-        </div>
-    </section>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Star animation
-        function createStars() {
-            const container = document.querySelector('.stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                star.style.animationDelay = `${Math.random() * 3}s`;
-                container.appendChild(star);
-            }
-        }
-        createStars();
-
-        // Flappy Bird Game
-        const canvas = document.getElementById('flappyCanvas');
-        const ctx = canvas.getContext('2d');
-        let bird = { x: 50, y: 250, radius: 15, velocity: 0, gravity: 0.5 };
-        let pipes = [];
-        let frame = 0;
-        let gameOver = false;
-        let score = 0;
-        const restartBtn = document.querySelector('.restart-btn');
-
-        // Event Listeners
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleJump();
-        });
-        canvas.addEventListener('click', handleJump);
-
-        function handleJump() {
-            if (gameOver) resetGame();
-            else bird.velocity = -8;
-        }
-
-        function resetGame() {
-            bird = { x: 50, y: 250, radius: 15, velocity: 0, gravity: 0.5 };
-            pipes = [];
-            frame = 0;
-            score = 0;
-            gameOver = false;
-            restartBtn.style.display = 'none';
-            document.getElementById('score').textContent = '0';
-            gameLoop();
-        }
-
-        function createPipe() {
-            const gap = 150;
-            const pipeHeight = Math.random() * (canvas.height - gap - 100) + 50;
-            pipes.push({ 
-                x: canvas.width,
-                top: pipeHeight,
-                bottom: pipeHeight + gap,
-                passed: false
-            });
-        }
-
-        function checkCollision() {
-            if (bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
-                gameOver = true;
-            }
+  <script>
+    // Initialize starfield
+    const canvas = document.getElementById('space-bg');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    const stars = [];
+    for (let i = 0; i < 200; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 0.8,
+        opacity: Math.random() * 0.5 + 0.3,
+        tSpeed: Math.random() * 0.02 + 0.005
+      });
+    }
+    
+    function drawStars() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+        ctx.shadowColor = '#aef6fe';
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        
+        star.opacity += (Math.random() - 0.5) * star.tSpeed;
+        if (star.opacity > 0.8) star.opacity = 0.8;
+        if (star.opacity < 0.2) star.opacity = 0.2;
+      });
+      
+      ctx.shadowBlur = 0;
+      requestAnimationFrame(drawStars);
+    }
+    
+    drawStars();
+    
+    // Scanner logic
+    const startBtn = document.getElementById('startBtn');
+    const message = document.getElementById('message');
+    const status = document.getElementById('status');
+    const progressBar = document.querySelector('.bar');
+    const barFill = document.getElementById('barFill');
+    const handContainer = document.getElementById('handContainer');
+    
+    const videos = [
+      'https://youtu.be/ULpLvPu3aU0?si=YEPnngZ-P5Tmji-8',
+      'https://youtu.be/dOtMlUmTQm4?si=VgdtYxMrz7uHbApU'
+    ];
+    
+    function startScan() {
+      message.textContent = '';
+      status.innerHTML = '<strong>Show your palm on the camera</strong>';
+      progressBar.style.display = 'none';
+      handContainer.style.display = 'none';
+      
+      setTimeout(() => {
+        status.textContent = 'Scanning palm...';
+        progressBar.style.display = 'block';
+        barFill.style.width = '0%';
+        handContainer.style.display = 'block';
+        
+        const startTime = Date.now();
+        const scanDuration = 10000;
+        
+        const scanInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const percent = Math.min(100, Math.floor((elapsed / scanDuration) * 100));
+          barFill.style.width = percent + '%';
+          status.textContent = `Scanning palm... ${percent}%`;
+          
+          if (percent >= 100) clearInterval(scanInterval);
+        }, 100);
+        
+        setTimeout(() => {
+          status.textContent = 'Uploading...';
+          handContainer.style.display = 'none';
+          
+          setTimeout(() => {
+            status.textContent = 'Loading your future...';
             
-            pipes.forEach(pipe => {
-                if (bird.x + bird.radius > pipe.x && 
-                    bird.x - bird.radius < pipe.x + 50 &&
-                    (bird.y - bird.radius < pipe.top || 
-                     bird.y + bird.radius > pipe.bottom)) {
-                    gameOver = true;
-                }
-                
-                if (!pipe.passed && bird.x > pipe.x + 50) {
-                    score++;
-                    pipe.passed = true;
-                    document.getElementById('score').textContent = score;
-                }
-            });
-        }
-
-        function update() {
-            if (gameOver) {
-                restartBtn.style.display = 'block';
-                return;
-            }
-            
-            bird.velocity += bird.gravity;
-            bird.y += bird.velocity;
-            
-            if (frame % 120 === 0) createPipe();
-            
-            pipes.forEach(pipe => pipe.x -= 2);
-            pipes = pipes.filter(pipe => pipe.x > -50);
-            
-            checkCollision();
-            frame++;
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw bird
-            ctx.fillStyle = '#ffd700';
-            ctx.beginPath();
-            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Draw pipes
-            ctx.fillStyle = '#2ecc71';
-            pipes.forEach(pipe => {
-                ctx.fillRect(pipe.x, 0, 50, pipe.top);
-                ctx.fillRect(pipe.x, pipe.bottom, 50, canvas.height - pipe.bottom);
-            });
-            
-            if (gameOver) {
-                ctx.fillStyle = '#e74c3c';
-                ctx.font = '30px Arial';
-                ctx.fillText('Game Over!', 120, 250);
-            }
-        }
-
-        function gameLoop() {
-            update();
-            draw();
-            if (!gameOver) requestAnimationFrame(gameLoop);
-        }
-
-        resetGame();
-    </script>
+            setTimeout(() => {
+              showVideo();
+            }, 3000);
+          }, 3000);
+        }, 10000);
+      }, 1500);
+    }
+    
+    function showVideo() {
+      const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+      
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'close-btn';
+      closeBtn.innerHTML = '&times;';
+      closeBtn.onclick = () => {
+        overlay.remove();
+        resetScanner();
+      };
+      
+      const title = document.createElement('h3');
+      title.textContent = 'Your Future:';
+      
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${extractVideoId(randomVideo)}?autoplay=1`;
+      iframe.frameborder = '0';
+      iframe.allow = 'autoplay; encrypted-media';
+      iframe.allowFullscreen = true;
+      
+      modal.appendChild(closeBtn);
+      modal.appendChild(title);
+      modal.appendChild(iframe);
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+      
+      message.textContent = '';
+      status.textContent = '';
+      progressBar.style.display = 'none';
+    }
+    
+    function extractVideoId(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return match && match[2].length === 11 ? match[2] : null;
+    }
+    
+    function resetScanner() {
+      message.textContent = 'To see your future click on START button';
+      status.textContent = '';
+      progressBar.style.display = 'none';
+      barFill.style.width = '0%';
+      handContainer.style.display = 'none';
+      startBtn.disabled = false;
+      startBtn.style.opacity = '1';
+    }
+    
+    startBtn.addEventListener('click', () => {
+      startBtn.disabled = true;
+      startBtn.style.opacity = '0.6';
+      startScan();
+    });
+    
+    resetScanner();
+  </script>
 </body>
 </html>
